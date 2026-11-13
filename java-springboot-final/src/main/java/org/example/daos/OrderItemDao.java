@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Component
@@ -42,7 +43,7 @@ public class OrderItemDao {
         try {
             jdbcTemplate.update(
                     con -> {
-                        PreparedStatement prepStmt = con.prepareStatement(sql);
+                        PreparedStatement prepStmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                         prepStmt.setInt(1, orderItem.getOrderId());
                         prepStmt.setInt(2, orderItem.getProductId());
                         prepStmt.setInt(3, orderItem.getQuantity());
@@ -58,8 +59,8 @@ public class OrderItemDao {
     }
 
     public OrderItem updateOrderItem(OrderItem orderItem) {
-        String sql = "UPDATE order_item SET order_id = ?, product_id = ?, quantity = ?";
-        int rowsAffected = jdbcTemplate.update(sql, orderItem.getOrderId(), orderItem.getProductId(), orderItem.getQuantity());
+        String sql = "UPDATE order_items SET order_id = ?, product_id = ?, quantity = ? WHERE id = ?";
+        int rowsAffected = jdbcTemplate.update(sql, orderItem.getOrderId(), orderItem.getProductId(), orderItem.getQuantity(), orderItem.getId());
         if (rowsAffected == 0) {
             throw new DaoException("Zero rows affected. expected at least one.");
         } else {
@@ -68,7 +69,7 @@ public class OrderItemDao {
     }
 
     public int deleteOrderItem(OrderItem orderItem) {
-        String sql = "DELETE FROM order_item WHERE id = ?";
+        String sql = "DELETE FROM order_items WHERE id = ?";
         return jdbcTemplate.update(sql, orderItem.getId());
     }
 

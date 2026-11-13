@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 @Component
@@ -31,7 +32,7 @@ public class ProductDao {
 
     public Product getProductById(int id) {
         try {
-            return jdbcTemplate.queryForObject("SELECT * FROM orders WHERE id = ?", this::mapToProduct, id);
+            return jdbcTemplate.queryForObject("SELECT * FROM products WHERE id = ?", this::mapToProduct, id);
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -43,7 +44,7 @@ public class ProductDao {
         try {
             jdbcTemplate.update(
                     con -> {
-                        PreparedStatement prepStmt = con.prepareStatement(sql);
+                        PreparedStatement prepStmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                         prepStmt.setString(1, product.getName());
                         prepStmt.setBigDecimal(2, product.getPrice());
                         return prepStmt;
@@ -58,7 +59,7 @@ public class ProductDao {
     }
 
     public Product updateProduct(Product product) {
-        String sql = "UPDATE product SET name = ?, price = ? WHERE id = ?";
+        String sql = "UPDATE products SET name = ?, price = ? WHERE id = ?";
         int rowsAffected = jdbcTemplate.update(sql, product.getName(), product.getPrice(), product.getId());
         if (rowsAffected == 0) {
             throw new DaoException("Zero rows affected. expected at least one.");

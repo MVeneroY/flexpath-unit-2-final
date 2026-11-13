@@ -18,27 +18,27 @@ public class OrderController {
     private OrderDao orderDao;
 
     @GetMapping
-    public List<Order> getOrders() {
+    public List<Order> getAll() {
         return orderDao.getOrders();
     }
 
     @GetMapping(path = "/{id}")
-    public Order getOrderById(@PathVariable("id") int orderId) {
-        Order result =  orderDao.getOrderById(orderId);
-        if (result == null) {
+    public Order get(@PathVariable("id") int orderId) {
+        Order order =  orderDao.getOrderById(orderId);
+        if (order == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return result;
+        return order;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Order createOrder(@RequestBody User user) {
+    public Order create(@RequestBody User user) {
         return orderDao.createOrder(user);
     }
 
     @PutMapping(path = "/{id}")
-    public Order updateOrder(@PathVariable("id") int orderId, @RequestBody User user) {
+    public Order update(@PathVariable("id") int orderId, @RequestBody User user) {
         Order order = new Order(orderId, user.getUsername());
         try {
             return orderDao.updateOrder(order);
@@ -48,7 +48,7 @@ public class OrderController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public int deleteOrder(@PathVariable("id") int orderId) {
+    public int delete(@PathVariable("id") int orderId) {
         Order order = orderDao.getOrderById(orderId);
         if (order == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
