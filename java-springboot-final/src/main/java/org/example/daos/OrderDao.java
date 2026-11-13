@@ -60,12 +60,13 @@ public class OrderDao {
         try {
             jdbcTemplate.update(
                     con -> {
-                        PreparedStatement prepStmt = con.prepareStatement(sql);
+                        PreparedStatement prepStmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                         prepStmt.setString(1, user.getUsername());
                         return prepStmt;
                     },
                     keyHolder
             );
+            System.out.println(keyHolder.getKey().intValue());
             return getOrderById(keyHolder.getKey().intValue());
         } catch (DataAccessException | NullPointerException e) {
             return null;
@@ -73,7 +74,7 @@ public class OrderDao {
     }
 
     public Order updateOrder(Order order) {
-        String sql = "UPDATE order SET username = ? WHERE id = ?";
+        String sql = "UPDATE orders SET username = ? WHERE id = ?";
         int rowsAffected = jdbcTemplate.update(sql, order.getUsername(), order.getId());
         if (rowsAffected == 0) {
             throw new DaoException("Zero rows affected. expected at least one.");
